@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es-CO">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Seven Music Studios | Producción audiovisual, sala de ensayo y alquiler de equipos</title>
+  <meta name="description" content="Seven Music Studios: producción musical y audiovisual a la medida. Sala de ensayos equipada, estudio de grabación, alquiler de equipos y soporte técnico. Reserva tu sesión o solicita una cotización por WhatsApp." />
+  <meta property="og:title" content="Seven Music Studios" />
+  <meta property="og:description" content="Producción audiovisual y estudio profesional a tu medida. Ensaya, graba, alquila equipos o produce tu proyecto con un equipo creativo y técnico." />
+  <meta property="og:type" content="website" />
+  <meta property="og:locale" content="es_CO" />
+
+  <!-- ✅ Favicon: archivo local + cache busting, con fallback al de Drive -->
+  <link rel="icon" type="image/png" href="favicon.png?v=7">
+  <link rel="alternate icon" type="image/png" href="https://drive.google.com/uc?export=view&id=1qTFkARLEqvyZxGDJ0qbFzA0ERvTOrXnP&v=7" />
+
+  <!-- TailwindCSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            title: ['Montserrat Alternates','Montserrat','ui-sans-serif','system-ui'],
+            subtitle: ['Montserrat','ui-sans-serif','system-ui'],
+            body: ['Open Sans','Lato','ui-sans-serif','system-ui']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    .card { box-shadow: 0 10px 25px rgba(0,0,0,.08); border-radius: 1rem; }
+    .btn { border-radius: .875rem; }
+    .logo-white { filter: brightness(0) invert(1); }
+    .icon-btn { display:inline-grid; place-items:center; width:40px; height:40px; border-radius:9999px; background:rgba(255,255,255,.10); }
+    .icon-btn:hover { background:rgba(255,255,255,.20); }
+  </style>
+
+  <!-- Cargador robusto de imágenes & video desde Google Drive -->
+  <script>
+    const DRIVE_IDS = {
+      logo: '1IZRwmFYpFIKrnRuLSY7zM27zC60NSv0E',  // Logo header/footer
+      hero: '1yuLvHRbOnjMjtZib7FpmGtG_yMkjp6X5',
+      srv1: '10jqk2ICkN79pGi-JxYRhVu5sztjVcgRK',
+      srv2: '1vXEZXuv6mAMh_D0YZDocB1U2TmWJhy6F',
+      srv3: '1HIwXjKd4eBbc-jBw_gOef7lgf54a53QM',
+      about: '1wqsnsD_MSuP1LkbL3bLRfxzSPnLC6GSJ',
+      video: '1ZZISxr07WUFar2M_qcouBGACI9GNAkoZ',
+      aliados: ['1Hu388aaOuIcpeFEr5zbyfEpf_Wy_vWZz','1IHoyUW7zgaA5S7E6Z8xhS7uDPePgpZNk','1ZbzUNa1cipiUIYa08jJS6zJiu_gxOIqj']
+    };
+
+    function driveCandidates(id, size=1600){
+      return [
+        `https://drive.google.com/uc?export=view&id=${id}`,
+        `https://drive.google.com/thumbnail?id=${id}&sz=w${size}`,
+        `https://lh3.googleusercontent.com/d/${id}`
+      ];
+    }
+
+    function resolveImage(id, cb, size){
+      const urls = driveCandidates(id, size);
+      const probe = new Image();
+      let i = 0;
+      function next(){
+        if(i >= urls.length) return;
+        probe.onload = () => cb(urls[i]);
+        probe.onerror = () => { i++; next(); };
+        probe.referrerPolicy = 'no-referrer';
+        probe.src = urls[i];
+      }
+      next();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Logo header/footer
+      resolveImage(DRIVE_IDS.logo, url => {
+        const logo = document.getElementById('logo');
+        const fLogo = document.getElementById('footerLogo');
+        if (logo) logo.src = url;
+        if (fLogo) fLogo.src = url;
+      }, 512);
+
+      // Hero
+      resolveImage(DRIVE_IDS.hero, url => {
+        const hero = document.getElementById('hero');
+        if (hero) hero.style.backgroundImage = `url('${url}')`;
+      }, 1920);
+
+      // Servicios
+      resolveImage(DRIVE_IDS.srv1, url => { const el = document.getElementById('srv1'); if (el) el.src = url; }, 1200);
+      resolveImage(DRIVE_IDS.srv2, url => { const el = document.getElementById('srv2'); if (el) el.src = url; }, 1200);
+      resolveImage(DRIVE_IDS.srv3, url => { const el = document.getElementById('srv3'); if (el) el.src = url; }, 1200);
+
+      // Sobre nosotros
+      resolveImage(DRIVE_IDS.about, url => { const el = document.getElementById('aboutImg'); if (el) el.src = url; }, 1400);
+
+      // Aliados (aseguramos carga blanca y correcta)
+      const allyEls = document.querySelectorAll('[data-ally]');
+      allyEls.forEach((img, idx) => {
+        const id = DRIVE_IDS.aliados[idx];
+        if(!id) return;
+        resolveImage(id, url => { img.src = url; }, 600);
+      });
+
+      // Poster del video + click para cargar preview
+      (function(){
+        const posterEl = document.getElementById('videoPoster');
+        const playBtn  = document.getElementById('playVideo');
+        const wrap     = document.getElementById('videoWrap');
+        if(!posterEl || !playBtn || !wrap) return;
+        const thumb = `https://drive.google.com/thumbnail?id=${DRIVE_IDS.video}&sz=w1280`;
+        const fallback = `https://lh3.googleusercontent.com/d/${DRIVE_IDS.video}`;
+        const img = new Image();
+        img.onload = ()=> posterEl.style.backgroundImage = `url('${img.src}')`;
+        img.onerror= ()=> posterEl.style.backgroundImage = `url('${fallback}')`;
+        img.referrerPolicy = 'no-referrer';
+        img.src = thumb;
+        playBtn.addEventListener('click', ()=>{
+          wrap.innerHTML = `<iframe class="w-full h-full" src="https://drive.google.com/file/d/${DRIVE_IDS.video}/preview" title="Seven Music Studios - Nuestro Espacio" allow="autoplay; encrypted-media; fullscreen" allowfullscreen referrerpolicy="no-referrer"></iframe>`;
+        });
+      })();
+
+      // Año footer
+      const y = document.getElementById('year');
+      if (y) y.textContent = new Date().getFullYear();
+    });
+  </script>
+</head>
+<body class="font-body antialiased text-[#3A1C47] bg-white">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-40 bg-[#1F5B2E]/95 backdrop-blur border-b border-black/0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img id="logo" src="" alt="Seven Music Studios" class="h-16 md:h-20 w-auto" referrerpolicy="no-referrer" />
+      </div>
+      <nav class="hidden md:flex items-center gap-6 text-sm text-white">
+        <a href="#inicio" class="hover:opacity-80">Inicio</a>
+        <a href="#servicios" class="hover:opacity-80">Servicios</a>
+        <a href="#sobre-nosotros" class="hover:opacity-80">Sobre Nosotros</a>
+        <a href="#nuestro-espacio" class="hover:opacity-80">Nuestro Espacio</a>
+        <a href="#aliados" class="hover:opacity-80">Aliados</a>
+        <a href="#form" class="hover:opacity-80">Cotiza</a>
+        <a href="#form" class="hover:opacity-80">Contacto</a>
+      </nav>
+      <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20reservar" target="_blank" rel="noopener" class="btn px-4 py-2 text-[#1F5B2E] bg-white hover:bg-[#BFC7B9] transition font-semibold text-sm">Reservar</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section id="inicio" class="relative bg-center bg-cover">
+    <div id="hero" class="absolute inset-0 bg-black/55 bg-center bg-cover"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28 text-center">
+      <h1 class="font-title text-white text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
+        Alquiler de sala de ensayos musicales en Santa Marta desde $80.000
+      </h1>
+      <p class="mt-5 text-white/90 text-lg max-w-3xl mx-auto">
+        Proporcionamos servicios de producción audiovisual, alquiler de salas de ensayo y equipos profesionales de música.
+      </p>
+      <div class="mt-8 flex flex-wrap gap-3 justify-center">
+        <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20reservar%20una%20sala%20de%20ensayo" target="_blank" class="btn px-7 py-3 bg-[#1F5B2E] text-white font-semibold hover:bg-[#4A8C58] transition">Reservar</a>
+        <a href="#form" class="btn px-7 py-3 border border-white text-white font-semibold hover:bg-white hover:text-[#1F5B2E] transition">Solicitar cotización</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Servicios -->
+  <section id="servicios" class="py-20 bg-gray-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-12">
+        <h2 class="font-title text-3xl sm:text-4xl font-bold text-[#1F5B2E]">Nuestros Servicios</h2>
+        <p class="mt-4 text-gray-600 max-w-2xl mx-auto">En Seven Music Studios ofrecemos soluciones audiovisuales y musicales diseñadas a la medida para artistas, agrupaciones, productores y empresas de eventos.</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        <article class="card bg-white overflow-hidden flex flex-col">
+          <img id="srv1" src="" alt="Producción Audiovisual" class="w-full h-52 object-cover" referrerpolicy="no-referrer">
+          <div class="p-6 flex flex-col flex-1">
+            <h3 class="font-title text-xl font-semibold text-[#1F5B2E]">Producción Audiovisual</h3>
+            <p class="text-[#1F5B2E] font-semibold mb-3">Desde $600.000</p>
+            <p class="text-gray-600 flex-1">Realización de material audiovisual para necesidades artísticas y corporativas: grabación, edición y postproducción.</p>
+            <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20cotizar%20Producción%20Audiovisual" target="_blank" class="btn mt-5 w-full px-4 py-2 bg-[#1F5B2E] text-white font-semibold hover:bg-[#4A8C58] transition text-center">Reservar</a>
+          </div>
+        </article>
+
+        <article class="card bg-white overflow-hidden flex flex-col">
+          <img id="srv2" src="" alt="Alquiler de Sala de Ensayo" class="w-full h-52 object-cover" referrerpolicy="no-referrer">
+          <div class="p-6 flex flex-col flex-1">
+            <h3 class="font-title text-xl font-semibold text-[#1F5B2E]">Alquiler de Sala de Ensayo</h3>
+            <p class="text-[#1F5B2E] font-semibold mb-3">Desde $80.000</p>
+            <p class="text-gray-600 flex-1">Espacio acondicionado acústicamente con equipos profesionales para ensayos y pre-producción.</p>
+            <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20reservar%20una%20Sala%20de%20Ensayo" target="_blank" class="btn mt-5 w-full px-4 py-2 bg-[#1F5B2E] text-white font-semibold hover:bg-[#4A8C58] transition text-center">Reservar</a>
+          </div>
+        </article>
+
+        <article class="card bg-white overflow-hidden flex flex-col">
+          <img id="srv3" src="" alt="Alquiler de Equipos" class="w-full h-52 object-cover" referrerpolicy="no-referrer">
+          <div class="p-6 flex flex-col flex-1">
+            <h3 class="font-title text-xl font-semibold text-[#1F5B2E]">Alquiler de Equipos</h3>
+            <p class="text-[#1F5B2E] font-semibold mb-3">Desde $500.000</p>
+            <p class="text-gray-600 flex-1">Audio profesional, iluminación y backline con soporte técnico para shows y producciones.</p>
+            <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20cotizar%20Alquiler%20de%20Equipos" target="_blank" class="btn mt-5 w-full px-4 py-2 bg-[#1F5B2E] text-white font-semibold hover:bg-[#4A8C58] transition text-center">Reservar</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sobre Nosotros -->
+  <section id="sobre-nosotros" class="py-20 bg-[#1F5B2E] text-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12 items-center">
+      <div>
+        <h2 class="font-title text-3xl sm:text-4xl font-bold mb-4">Sobre nosotros</h2>
+        <h3 class="font-subtitle text-xl font-semibold mb-2">Carlos Jaime</h3>
+        <p class="opacity-90 mb-6">Fundador de Seven Music Studios</p>
+        <p class="leading-relaxed opacity-95">
+          <strong>Carlos Jaime</strong>, fundador de Seven Music Studios, ha sido un amante de la música desde siempre. 
+          Con más de 15 años de aprendizaje empírico, explorando sonidos y perfeccionando técnicas, ha transformado su pasión en un proyecto de vida. 
+          Aunque se graduó en Negocios Internacionales, decidió dedicarse por completo a su verdadera vocación: la producción musical.
+        </p>
+        <p class="leading-relaxed mt-4 opacity-95">
+          Su disciplina y visión lo llevaron a convertirse en ganador del <strong>Fondo Emprender</strong>, 
+          consolidando a Seven Music Studios como un referente en la escena musical de Santa Marta. 
+          Hoy, el estudio es un espacio que inspira, conecta y potencia a artistas, bandas y productores que buscan un entorno profesional y creativo para hacer crecer sus proyectos.
+        </p>
+      </div>
+      <div>
+        <img id="aboutImg" src="" alt="Carlos Jaime fundador de Seven Music Studios" class="rounded-lg shadow-lg object-cover w-full h-auto" referrerpolicy="no-referrer">
+      </div>
+    </div>
+  </section>
+
+  <!-- Nuestro Espacio (poster + botón de play) -->
+  <section id="nuestro-espacio" class="py-20 bg-gray-200">
+    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="font-title text-3xl sm:text-4xl font-bold text-[#1F5B2E] mb-8">Nuestro Espacio</h2>
+      <p class="mb-6 text-gray-700">Un espacio diseñado para inspirar y potenciar la creatividad de artistas y productores.</p>
+      <div id="videoWrap" class="relative aspect-[16/9] bg-gray-400 rounded-lg overflow-hidden shadow-lg">
+        <div id="videoPoster" class="absolute inset-0 bg-center bg-cover"></div>
+        <button id="playVideo" class="absolute inset-0 m-auto h-16 w-16 grid place-items-center rounded-full bg-white/90 hover:bg-white transition shadow-lg" aria-label="Reproducir video">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-8 w-8 text-[#1F5B2E] ml-1">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Aliados -->
+  <section id="aliados" class="py-20 bg-[#29291F] text-white">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h2 class="font-title text-3xl sm:text-4xl font-bold mb-12">Nuestros Aliados</h2>
+      <div class="flex flex-wrap justify-center items-center gap-12">
+        <img data-ally src="" alt="SENA" class="h-16 object-contain logo-white" referrerpolicy="no-referrer">
+        <img data-ally src="" alt="Fondo Emprender" class="h-16 object-contain logo-white" referrerpolicy="no-referrer">
+        <img data-ally src="" alt="Cámara Comercio SM" class="h-16 object-contain logo-white" referrerpolicy="no-referrer">
+      </div>
+    </div>
+  </section>
+
+  <!-- Formulario de cotización -->
+  <section id="form" class="py-20 bg-gray-50">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="font-title text-3xl sm:text-4xl font-bold text-[#1F5B2E] text-center">Solicitar cotización</h2>
+      <p class="text-gray-600 text-center mt-3 mb-8">Déjanos tus datos y cuéntanos qué necesitas. Te responderemos pronto.</p>
+      <form id="quoteForm" class="grid gap-4 md:grid-cols-2 bg-white p-6 rounded-xl shadow">
+        <div class="flex flex-col">
+          <label class="text-sm font-semibold mb-1">Nombre</label>
+          <input type="text" id="name" class="border rounded-md px-3 py-2" placeholder="Tu nombre" required />
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-semibold mb-1">Correo</label>
+          <input type="email" id="email" class="border rounded-md px-3 py-2" placeholder="tunombre@mail.com" required />
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-semibold mb-1">Teléfono</label>
+          <input type="tel" id="phone" class="border rounded-md px-3 py-2" placeholder="+57 300 000 0000" required />
+        </div>
+        <div class="flex flex-col">
+          <label class="text-sm font-semibold mb-1">Servicio</label>
+          <select id="service" class="border rounded-md px-3 py-2" required>
+            <option value="Producción Audiovisual">Producción Audiovisual</option>
+            <option value="Alquiler de Sala de Ensayo">Alquiler de Sala de Ensayo</option>
+            <option value="Alquiler de Equipos">Alquiler de Equipos</option>
+          </select>
+        </div>
+        <div class="flex flex-col md:col-span-2">
+          <label class="text-sm font-semibold mb-1">Descripción</label>
+          <textarea id="message" rows="4" class="border rounded-md px-3 py-2" placeholder="Cuéntanos los detalles (fechas, tiempo, necesidades técnicas)..." required></textarea>
+        </div>
+        <div class="md:col-span-2 flex flex-wrap gap-3 justify-center pt-2">
+          <button type="submit" class="btn px-6 py-3 bg-[#1F5B2E] text-white font-semibold hover:bg-[#4A8C58] transition">Enviar por correo</button>
+          <a id="waBtn" target="_blank" rel="noopener" class="btn px-6 py-3 border border-[#1F5B2E] text-[#1F5B2E] font-semibold hover:bg-[#1F5B2E] hover:text-white transition inline-flex items-center gap-2">
+            <!-- Ícono WhatsApp inline -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M20.52 3.48A11.94 11.94 0 0012.05 0C5.45 0 .08 5.37.08 11.98c0 2.11.56 4.12 1.64 5.9L0 24l6.29-1.65a11.94 11.94 0 005.76 1.48h.01c6.6 0 11.98-5.37 11.98-11.98a11.9 11.9 0 00-3.52-8.37zM12.06 21.5h-.01a9.5 9.5 0 01-4.84-1.33l-.35-.2-3.73.98.99-3.64-.23-.37a9.46 9.46 0 01-1.47-5.06c0-5.24 4.27-9.5 9.52-9.5 2.55 0 4.95.99 6.76 2.8a9.46 9.46 0 012.79 6.7c0 5.24-4.28 9.5-9.53 9.5zm5.22-7.13c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.27-.7.87-.86 1.04-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.15-1.33a8.02 8.02 0 01-1.49-1.83c-.16-.27-.02-.41.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.03-.48-.07-.14-.62-1.5-.85-2.04-.23-.53-.46-.46-.63-.46h-.53c-.18 0-.48.07-.73.34s-.96.94-.96 2.28.99 2.66 1.13 2.84c.14.18 1.96 3 4.75 4.2.66.29 1.18.46 1.58.59.66.21 1.27.18 1.75.11.53-.08 1.58-.64 1.8-1.26.23-.62.23-1.15.16-1.26-.07-.09-.25-.16-.52-.3z" fill="currentColor"/>
+            </svg>
+            Enviar por WhatsApp
+          </a>
+        </div>
+      </form>
+      <p class="text-xs text-gray-500 mt-3 text-center">Al enviar, autorizas el tratamiento de tus datos para fines de contacto y cotización.</p>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-[#1F5B2E] text-white pt-14">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid gap-10 md:grid-cols-4">
+      <!-- Marca -->
+      <div>
+        <div class="flex items-center gap-3">
+          <img id="footerLogo" src="" alt="Seven Music Studios" class="h-20 md:h-24 w-auto logo-white" referrerpolicy="no-referrer"/>
+        </div>
+        <p class="mt-4 text-white/80 text-sm">Casa productora y estudio en Santa Marta. Ensayos, grabación, producción audiovisual y alquiler de equipos.</p>
+      </div>
+
+      <!-- Contacto -->
+      <div>
+        <h4 class="font-semibold text-lg mb-3">Contacto</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a class="hover:underline" href="tel:+573045212656">+57 304 521 2656</a></li>
+          <li><a class="hover:underline" href="mailto:sevenmusicstudios@gmail.com">sevenmusicstudios@gmail.com</a></li>
+          <li>Carrera 21 #23 - 50 Villa Carina Casa 7</li>
+          <li class="pt-2 text-white/70">Horarios: Lun–Sáb 9:00–19:00</li>
+        </ul>
+      </div>
+
+      <!-- Enlaces -->
+      <div>
+        <h4 class="font-semibold text-lg mb-3">Enlaces</h4>
+        <ul class="space-y-2 text-sm">
+          <li><a class="hover:underline" href="#inicio">Inicio</a></li>
+          <li><a class="hover:underline" href="#servicios">Servicios</a></li>
+          <li><a class="hover:underline" href="#sobre-nosotros">Sobre Nosotros</a></li>
+          <li><a class="hover:underline" href="#nuestro-espacio">Nuestro Espacio</a></li>
+          <li><a class="hover:underline" href="#form">Cotiza</a></li>
+          <li><a class="hover:underline" href="#form">Contacto</a></li>
+        </ul>
+      </div>
+
+      <!-- Redes -->
+      <div>
+        <h4 class="font-semibold text-lg mb-3">Síguenos</h4>
+        <div class="flex items-center gap-4">
+          <!-- Google Maps icon -->
+          <a href="https://www.google.com/maps/place/Seven+Music+Studios" target="_blank" rel="noopener" aria-label="Google Maps" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" class="h-5 w-5 text-white" fill="currentColor" aria-hidden="true">
+              <path d="M24 4C15.72 4 9 10.72 9 19c0 10.5 15 25 15 25s15-14.5 15-25c0-8.28-6.72-15-15-15zm0 20.5a5.5 5.5 0 110-11 5.5 5.5 0 010 11z"/>
+            </svg>
+          </a>
+          <!-- Instagram icon -->
+          <a href="https://instagram.com/sevenmusicstudios" target="_blank" rel="noopener" aria-label="Instagram" class="icon-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5"><path d="M7 2h10a5 5 0 0 1 5 5v10a5 5 0 0 1-5 5H7a5 5 0 0 1-5-5V7a5 5 0 0 1 5-5Zm5 5a5 5 0 1 0 0 10 5 5 0 0 0 0-10Zm6.5-.75a1.25 1.25 0 1 0 0 2.5 1.25 1.25 0 0 0 0-2.5Z"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 border-t border-white/15">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-xs text-white/70 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <span>© <span id="year"></span> Seven Music Studios. Todos los derechos reservados.</span>
+        <span>Desarrollado con ♥ por Seven Music Studios</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Botón flotante de WhatsApp (ícono oficial) -->
+  <a href="https://wa.me/573045212656?text=Hola%20Seven%20Music%20Studios%2C%20quiero%20informaci%C3%B3n" target="_blank" rel="noopener" class="fixed bottom-5 right-5 z-50 rounded-full w-14 h-14 grid place-items-center bg-[#25D366] text-white shadow-xl hover:scale-105 transition" aria-label="Abrir WhatsApp">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M20.52 3.48A11.94 11.94 0 0012.05 0C5.45 0 .08 5.37.08 11.98c0 2.11.56 4.12 1.64 5.9L0 24l6.29-1.65a11.94 11.94 0 005.76 1.48h.01c6.6 0 11.98-5.37 11.98-11.98a11.9 11.9 0 00-3.52-8.37zM12.06 21.5h-.01a9.5 9.5 0 01-4.84-1.33l-.35-.2-3.73.98.99-3.64-.23-.37a9.46 9.46 0 01-1.47-5.06c0-5.24 4.27-9.5 9.52-9.5 2.55 0 4.95.99 6.76 2.8a9.46 9.46 0 012.79 6.7c0 5.24-4.28 9.5-9.53 9.5zm5.22-7.13c-.28-.14-1.65-.81-1.9-.9-.25-.09-.43-.14-.61.14-.18.27-.7.87-.86 1.04-.16.18-.32.2-.59.07-.27-.14-1.13-.42-2.15-1.33a8.02 8.02 0 01-1.49-1.83c-.16-.27-.02-.41.12-.55.12-.12.27-.32.41-.48.14-.16.18-.27.27-.45.09-.18.05-.34-.03-.48-.07-.14-.62-1.5-.85-2.04-.23-.53-.46-.46-.63-.46h-.53c-.18 0-.48.07-.73.34s-.96.94-.96 2.28.99 2.66 1.13 2.84c.14.18 1.96 3 4.75 4.2.66.29 1.18.46 1.58.59.66.21 1.27.18 1.75.11.53-.08 1.58-.64 1.8-1.26.23-.62.23-1.15.16-1.26-.07-.09-.25-.16-.52-.3z" fill="currentColor"/>
+    </svg>
+  </a>
+
+  <!-- Lógica de envío del formulario: mailto y WhatsApp -->
+  <script>
+    (function(){
+      const form = document.getElementById('quoteForm');
+      const waBtn = document.getElementById('waBtn');
+      if(!form || !waBtn) return;
+
+      function buildMessage(){
+        const name = document.getElementById('name').value.trim();
+        const email = document.getElementById('email').value.trim();
+        const phone = document.getElementById('phone').value.trim();
+        const service = document.getElementById('service').value;
+        const message = document.getElementById('message').value.trim();
+        const lines = [
+          'Nueva solicitud de cotización',
+          'Nombre: ' + name,
+          'Correo: ' + email,
+          'Teléfono: ' + phone,
+          'Servicio: ' + service,
+          'Descripción: ' + message
+        ];
+        return lines.join('\n');
+      }
+
+      // Enviar por correo abriendo el cliente de email
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const body = encodeURIComponent(buildMessage());
+        const subject = encodeURIComponent('Cotización - ' + document.getElementById('service').value);
+        window.location.href = 'mailto:sevenmusicstudios@gmail.com?subject=' + subject + '&body=' + body;
+      });
+
+      // Enviar por WhatsApp
+      function updateWaLink(){
+        const text = encodeURIComponent(buildMessage());
+        waBtn.href = 'https://wa.me/573045212656?text=' + text;
+      }
+      form.addEventListener('input', updateWaLink);
+      updateWaLink();
+    })();
+  </script>
+</body>
+</html>
